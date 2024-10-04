@@ -1,0 +1,21 @@
+FROM node:20-alpine as web_build
+WORKDIR /web
+COPY ./frontend/ .
+RUN npm install --registry=https://registry.npmmirror.com
+RUN npm run build
+
+FROM python:3.11-slim-buster
+WORKDIR /server
+# web静态文件的路径
+ENV STATIC_DIR="./web/dist"
+# 存储文件路径
+ENV FILES_DIR="./files"
+# pip源
+# ENV PIP_INDEX_URL="https://mirrors.aliyun.com/pypi/simple/"
+COPY --from=web_build /web/dist ./web/dist
+COPY ./backend/requirements.txt .
+RUN python3 -m pip install -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
+
+COPY ./backend ./backend
+COPY ./run.py .
+CMD ["python3", "./run.py"]
