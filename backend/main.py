@@ -3,17 +3,30 @@ import time
 import os
 import uuid
 import shutil
+import json
+import asyncio
 
-from fastapi import FastAPI, Form, File, HTTPException
+from fastapi import FastAPI, Form, File, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 
-from backend.schemas import (UploadCodeResponse, ClearCodeRequest, CheckCodeRequest,
-                             CheckersResponse)
+from backend.schemas import UploadCodeResponse, ClearCodeRequest, CheckersResponse
 from backend.config import STATIC_DIR, FILES_DIR
 
-
+checkers_map = {
+    "*": {
+        "name": "全部",
+        "lib": None,
+        "category": None
+    },
+    "awesomeprefixcheck": {
+        "name": "函数命名必须有awesome",
+        "lib": "clang-tidy-plugin/build/lib/libAwesomePrefixCheck.so",
+        "category": "coveo"
+    }
+}
+websocket_connects = {}  # 用于管理检查之后需要通知的链接
 app = FastAPI()
 # 后端API
 api = FastAPI(root_path="/api/v1")
@@ -24,16 +37,7 @@ def get_checkers(language: str):
     if language != "C++":
         raise HTTPException(status_code=404, detail=f"不支持{language}的检查器")
     return {
-        "data": [{
-            "name": "全部",
-            "value": "all"
-        }, {
-            "name": "函数禁用",
-            "value": "forbidFunc"
-        }, {
-            "name": "精度丢失",
-            "value": "precisionLoss"
-        }]
+        "data": [{"name": value["name"], "value": key} for key, value in checkers_map.items()]
     }
 
 
@@ -64,9 +68,50 @@ def delete_code(file: ClearCodeRequest):
         os.remove(os.path.join(saved_path, file.filename))
 
 
-@api.post("/code/check", response_model=None, summary="开始进行代码检查")
-def check_code(check_in: CheckCodeRequest):
-    pass
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """开始检查代码，并将结果告知web"""
+    await websocket.accept()
+    try:
+        while True:
+            data = await websocket.receive_text()
+            request = json.loads(data)
+            if not request["uuid"]:
+                await websocket.send_text("请先上传待检查的文件！")
+            else:
+                # websocket_connects[websocket] = request["uuid"]
+                result = await execute_task(request)
+                await websocket.send_text(result)
+    except WebSocketDisconnect:
+        pass
+        # if websocket in websocket_connects:
+        #     websocket_connects.pop(websocket)
+
+
+async def execute_task(req):
+    checker_name = req["checkerName"]
+    category = checkers_map[checker_name]["category"]
+    lib_path = checkers_map[checker_name]["lib"]
+    target_path = os.path.join(FILES_DIR, req["uuid"])
+    if lib_path:
+        command = f'clang-tidy-16 --checks="{category}-{checker_name}" --load {lib_path} {target_path}/*.cpp'
+    else:
+        command = f'clang-tidy-16 --checks="{category}-{checker_name}" {target_path}/*.cpp'
+
+    async def run_subprocess() -> str:
+        """异步执行shell命令"""
+        process = await asyncio.create_subprocess_shell(
+            command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
+        )
+        stdout, stderr = await process.communicate()
+        return stdout.decode() if stdout else ""
+
+    # 特殊处理：没有编译命令时，删除前6行
+    res = await run_subprocess()
+    if res.startswith("Error while trying to load a compilation database:"):
+        lines = res.split('\n')
+        res = '\n'.join(lines[6:])
+    return res
 
 
 # 前端路由

@@ -60,7 +60,7 @@
           </el-form-item>
         </el-form>
         <el-text>检查结果</el-text>
-        <el-input type="textarea" v-model="checkResult"></el-input>
+        <el-input type="textarea" v-model="checkResult" autosize></el-input>
       </el-main>
       <el-footer>
         <el-text>
@@ -82,9 +82,10 @@ import { getCheckers, deleteFile, checkCode } from '@/api/codeCheck'
 import { UploadFilled } from '@element-plus/icons-vue'
 import type { UploadProps } from 'element-plus'
 import { ElMessage } from 'element-plus'
+
 const form = reactive({
   language: 'C++',
-  checkerName: 'all'
+  checkerName: '*'
 })
 const languageOptions = ref([
   {
@@ -95,12 +96,16 @@ const languageOptions = ref([
 const checkerOptions = ref([
   {
     name: '全部',
-    value: 'all'
+    value: '*'
   }
 ])
 const uploadFileName = reactive({ filename: '' })
 const uuid = ref('')
 const checkResult = ref('')
+var ws = new WebSocket('ws://60.204.224.115:80/ws')
+ws.onmessage = function (event) {
+  checkResult.value = event.data
+}
 
 const onBeforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
   if (rawFile.size / 1024 / 1024 > 2) {
@@ -121,10 +126,12 @@ const onUploadSuccess: UploadProps['onSuccess'] = async (response, uploadFile, u
 }
 
 const onSubmit = () => {
-  checkCode({
-    ...form,
-    uuid: uuid.value
-  })
+  ws.send(
+    JSON.stringify({
+      ...form,
+      uuid: uuid.value
+    })
+  )
 }
 const onClear = () => {
   deleteFile({
@@ -144,7 +151,9 @@ onMounted(() => {
 .main_div {
   background-color: #e0f2e9;
   margin: -8px;
-  height: 100vh;
+  position: absolute;
+  width: 100%;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
 }
