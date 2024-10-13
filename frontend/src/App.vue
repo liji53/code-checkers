@@ -13,6 +13,7 @@
           以及自定义检查器如：
           <el-tag type="primary">函数禁用</el-tag>
           <el-tag type="primary">精度丢失</el-tag>
+          <el-tag type="primary">事务忘提交</el-tag>
           等
         </el-text>
       </el-header>

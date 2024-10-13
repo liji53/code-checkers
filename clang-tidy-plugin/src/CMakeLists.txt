@@ -1,0 +1,4 @@
+add_subdirectory(example)
+add_subdirectory(assign_mistake_by_equal)
+add_subdirectory(condition_mistake_by_assign)
+add_subdirectory(snprintf_arg_count)
