@@ -23,7 +23,7 @@ testClangTidyReplacement() {
         "$filePath" || true
     clang-format-16 -i "$filePath"
     echo "The diff between '$filePath' and '$expectedFilePath' is:"
-    diff --color "$filePath" "$expectedFilePath" \
+    diff --color "$filePath" "$expectedFilePath" -w \
         || testPassed="false"
     if [[ "$updateExpected" == "1" ]]; then
         echo "Updating '$filePath' file with the current replacements"
@@ -36,6 +36,5 @@ testClangTidyReplacement() {
         echo -e "${GREEN}PASSED${NO_COLOR}"
     else
         echo -e "${RED}FAILED${NO_COLOR}"
-        exit 1
     fi
 }

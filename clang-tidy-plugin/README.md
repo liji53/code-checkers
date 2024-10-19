@@ -4,24 +4,24 @@
 
 https://github.com/coveooss/clang-tidy-plugin-examples.git
 
-### 部署
+## 部署
 ```
 cd clang-tidy-plugin/
 ```
-##### 安装clang
+#### 安装clang
 ```
 chmod +x installClang16.sh
 ./installClang16.sh
 ```
-##### 编译插件库
+#### 编译插件库
 ```shell
 CC=clang-16 CXX=clang++-16 cmake -B build -G Ninja -S .
 cmake --build build
 ```
 
-### 使用
+## 使用
 
-##### 查看是否支持某个检查
+#### 查看是否支持某个检查
 ```shell
 clang-tidy-16 \
 		--checks='*' \
@@ -29,13 +29,13 @@ clang-tidy-16 \
 		--list-checks \
 	| grep coveo-awesomeprefixcheck
 ```
-##### 生成编译命令
+#### 生成编译命令
 ```shell
 cmake -B buildTestedCpp -S tested_cpp \
 	-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 cmake --build buildTestedCpp
 ```
-##### 指定检查器进行检查
+#### 指定检查器进行检查
 ```shell
 clang-tidy-16 \
 	--checks='coveo-awesomeprefixcheck' \
@@ -44,21 +44,22 @@ clang-tidy-16 \
 	tested_cpp/src/code.cpp
 ```
 
-### 开发
+## 开发
 
-##### 开发一个新的checker
+#### 开发一个新的checker
 使用脚本来生成checker的代码模板
 ```shell
 python createNewChecker.py
 ```
 
-### 测试
+## 测试
 
-##### 编写被测试的代码
-在src/[检查器]目录下编写该检查器需要检查的异常代码(TestXXX.cpp)和期望代码(ExpectedXXX.cpp) 
+#### 编写被测试的代码
+在src/<检查器> 目录下编写该检查器需要检查的异常代码(TestXXX.cpp)和期望代码(ExpectedXXX.cpp) 
 
-##### 执行全部测试
+#### 执行全部测试
 ```
 chmod +x testAll.sh
+find src -type f -name "test.sh" -exec chmod +x {} \;
 ./testAll.sh
 ```
