@@ -25,7 +25,7 @@ python3 -m venv ./venv
 pip install -r backend/requirements.txt 
 ```
 ##### clang-tidy插件环境准备
-请参考[clang-tidy-plugin](./clang-tidy-plugin/README.md)
+请参考[clang-tidy-plugin](./clang-tidy-plugin/README.md)的部署章节
 
 ##### 启动服务
 ```
