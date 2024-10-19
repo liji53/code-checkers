@@ -24,6 +24,21 @@ checkers_map = {
         "name": "函数命名必须有awesome",
         "lib": "clang-tidy-plugin/build/lib/libAwesomePrefixCheck.so",
         "category": "coveo"
+    },
+    "snprintfargcountcheck": {
+        "name": "snprintf函数占位符与参数个数不一致",
+        "lib": "clang-tidy-plugin/build/lib/libSnprintfArgCount.so",
+        "category": "hs"
+    },
+    "assignmistakebyequalcheck": {
+        "name": "赋值语句误用==",
+        "lib": "clang-tidy-plugin/build/lib/libAssignMistakeByEqual.so",
+        "category": "hs"
+    },
+    "conditionmistakebyassigncheck": {
+        "name": "条件判断语句中误用赋值",
+        "lib": "clang-tidy-plugin/build/lib/libConditionMistakeByAssign.so",
+        "category": "hs"
     }
 }
 websocket_connects = {}  # 用于管理检查之后需要通知的链接
