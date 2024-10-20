@@ -15,11 +15,6 @@ from backend.schemas import UploadCodeResponse, ClearCodeRequest, CheckersRespon
 from backend.config import STATIC_DIR, FILES_DIR
 
 checkers_map = {
-    "*": {
-        "name": "全部",
-        "lib": None,
-        "category": None
-    },
     "awesomeprefixcheck": {
         "name": "函数命名必须有awesome",
         "lib": "clang-tidy-plugin/build/lib/libAwesomePrefixCheck.so",

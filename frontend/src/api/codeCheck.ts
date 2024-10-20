@@ -1,4 +1,8 @@
 import axios from 'axios'
+export type checkerItem = {
+  value: string
+  name: string
+}
 
 export const getLanguages = async () => {
   return await axios.get('/api/v1/code/languages')

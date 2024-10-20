@@ -41,6 +41,7 @@
           </el-form-item>
           <el-form-item label="代码文件">
             <el-upload
+              ref="uploadRef"
               drag
               multiple
               show-file-list
@@ -79,10 +80,10 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
-import { getCheckers, deleteFile } from '@/api/codeCheck'
+import { getCheckers, deleteFile, type checkerItem } from '@/api/codeCheck'
 import { UploadFilled } from '@element-plus/icons-vue'
 import type { UploadProps } from 'element-plus'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElUpload } from 'element-plus'
 
 const form = reactive({
   language: 'C++',
@@ -94,12 +95,8 @@ const languageOptions = ref([
     label: 'C++'
   }
 ])
-const checkerOptions = ref([
-  {
-    name: '全部',
-    value: '*'
-  }
-])
+const checkerOptions = ref<checkerItem[]>([])
+const uploadRef = ref<InstanceType<typeof ElUpload> | null>(null)
 const uploadFileName = reactive({ filename: '' })
 const uuid = ref('')
 const checkResult = ref('')
@@ -138,6 +135,9 @@ const onClear = () => {
   deleteFile({
     uuid: uuid.value
   })
+  if (uploadRef.value) {
+    uploadRef.value.clearFiles()
+  }
 }
 
 onMounted(() => {
