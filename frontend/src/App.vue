@@ -18,7 +18,7 @@
         </el-text>
       </el-header>
       <el-main>
-        <el-form ref="formRef" :model="form" label-width="100px">
+        <el-form ref="formRef" :model="form" label-width="100px" :rules="rules">
           <el-form-item label="编程语言">
             <el-select v-model="form.language" placeholder="请选择编程语言">
               <el-option
@@ -29,7 +29,7 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="检查器">
+          <el-form-item label="检查器" prop="checkerName">
             <el-select v-model="form.checkerName" placeholder="请选择检查器">
               <el-option
                 v-for="item in checkerOptions"
@@ -57,7 +57,7 @@
             </el-upload>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSubmit">开始检查</el-button>
+            <el-button type="primary" @click="onSubmit(formRef)">开始检查</el-button>
             <el-button @click="onClear">清空上传文件</el-button>
           </el-form-item>
         </el-form>
@@ -82,8 +82,8 @@
 import { reactive, ref, onMounted } from 'vue'
 import { getCheckers, deleteFile, type checkerItem } from '@/api/codeCheck'
 import { UploadFilled } from '@element-plus/icons-vue'
-import type { UploadProps } from 'element-plus'
-import { ElMessage, ElUpload } from 'element-plus'
+import type { UploadProps, FormInstance, ElUpload } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
 const form = reactive({
   language: 'C++',
@@ -97,6 +97,11 @@ const languageOptions = ref([
 ])
 const checkerOptions = ref<checkerItem[]>([])
 const uploadRef = ref<InstanceType<typeof ElUpload> | null>(null)
+const formRef = ref<FormInstance>()
+const rules = reactive({
+  checkerName: [{ required: true, message: '请选择检查器', trigger: 'blur' }]
+})
+
 const uploadFileName = reactive({ filename: '' })
 const uuid = ref('')
 const checkResult = ref('')
@@ -123,13 +128,18 @@ const onUploadSuccess: UploadProps['onSuccess'] = async (response, uploadFile, u
   uuid.value = response.uuid
 }
 
-const onSubmit = () => {
-  ws.send(
-    JSON.stringify({
-      ...form,
-      uuid: uuid.value
-    })
-  )
+const onSubmit = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      ws.send(
+        JSON.stringify({
+          ...form,
+          uuid: uuid.value
+        })
+      )
+    }
+  })
 }
 const onClear = () => {
   deleteFile({
