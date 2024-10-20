@@ -11,7 +11,3 @@ export const getCheckers = async (params: object) => {
 export const deleteFile = async (data: object) => {
   return await axios.post('/api/v1/code/clear', data)
 }
-
-export const checkCode = async (data: object) => {
-  return await axios.post('/api/v1/code/check', data)
-}

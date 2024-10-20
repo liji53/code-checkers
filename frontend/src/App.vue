@@ -67,7 +67,7 @@
         <el-text>
           如果觉得不错，请前往<el-link
             type="primary"
-            href="https://gitee.com/liji1211/tauri-vue3-appscheduler"
+            href="https://gitee.com/liji1211/code-checkers"
             >项目地址</el-link
           >, 帮我点个赞 </el-text
         ><br />
@@ -79,7 +79,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
-import { getCheckers, deleteFile, checkCode } from '@/api/codeCheck'
+import { getCheckers, deleteFile } from '@/api/codeCheck'
 import { UploadFilled } from '@element-plus/icons-vue'
 import type { UploadProps } from 'element-plus'
 import { ElMessage } from 'element-plus'
