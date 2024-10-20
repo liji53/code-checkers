@@ -42,6 +42,7 @@
           <el-form-item label="代码文件">
             <el-upload
               ref="uploadRef"
+              v-model:file-list="fileList"
               drag
               multiple
               show-file-list
@@ -51,6 +52,7 @@
               :before-upload="onBeforeUpload"
               :on-remove="onFileRemove"
               :on-success="onUploadSuccess"
+              :on-error="onUploadError"
             >
               <el-icon class="el-icon--upload"><upload-filled /></el-icon>
               <div class="el-upload__text">请上传代码<em>click to upload</em></div>
@@ -82,7 +84,7 @@
 import { reactive, ref, onMounted } from 'vue'
 import { getCheckers, deleteFile, type checkerItem } from '@/api/codeCheck'
 import { UploadFilled } from '@element-plus/icons-vue'
-import type { UploadProps, FormInstance, ElUpload } from 'element-plus'
+import type { UploadProps, FormInstance, ElUpload, UploadUserFile } from 'element-plus'
 import { ElMessage } from 'element-plus'
 
 const form = reactive({
@@ -96,17 +98,20 @@ const languageOptions = ref([
   }
 ])
 const checkerOptions = ref<checkerItem[]>([])
+
 const uploadRef = ref<InstanceType<typeof ElUpload> | null>(null)
 const formRef = ref<FormInstance>()
 const rules = reactive({
   checkerName: [{ required: true, message: '请选择检查器', trigger: 'blur' }]
 })
 
+const fileList = ref<UploadUserFile[]>([])
 const uploadFileName = reactive({ filename: '' })
 const uuid = ref('')
 const checkResult = ref('')
 var ws = new WebSocket('ws://60.204.224.115:80/ws')
 ws.onmessage = function (event) {
+  ElMessage.success('检查结束，请查看检查结果!')
   checkResult.value = event.data
 }
 
@@ -127,11 +132,18 @@ const onFileRemove: UploadProps['onRemove'] = (file, uploadFiles) => {
 const onUploadSuccess: UploadProps['onSuccess'] = async (response, uploadFile, uploadFiles) => {
   uuid.value = response.uuid
 }
+const onUploadError: UploadProps['onError'] = (error, uploadFile, uploadFiles) => {
+  ElMessage.error('文件上传失败，请重试!')
+}
 
 const onSubmit = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
+      if (uploadRef.value?.$props.fileList?.length === 0) {
+        ElMessage.error(`请先上传文件!`)
+        return
+      }
       ws.send(
         JSON.stringify({
           ...form,
