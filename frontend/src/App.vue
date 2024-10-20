@@ -30,7 +30,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="检查器">
-            <el-select v-model="form.checkerName" placeholder="请选择编程语言">
+            <el-select v-model="form.checkerName" placeholder="请选择检查器">
               <el-option
                 v-for="item in checkerOptions"
                 :key="item.value"
@@ -87,7 +87,7 @@ import { ElMessage, ElUpload } from 'element-plus'
 
 const form = reactive({
   language: 'C++',
-  checkerName: '*'
+  checkerName: ''
 })
 const languageOptions = ref([
   {
