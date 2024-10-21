@@ -2,3 +2,6 @@
 [D|d]ebug*/
 [R|r]elease*/
 [O|o]bj/
+out
+.vs
+CMakeSettings.json

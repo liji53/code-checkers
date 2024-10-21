@@ -4,5 +4,6 @@ target_include_directories(AssignMistakeByEqual
     PRIVATE
         ${CLANG_INCLUDE_DIRS}
         ${LLVM_INCLUDE_DIRS}
+        ${CLANG_TIDY_INCLUDE_DIRS}
 )
 target_sources(AssignMistakeByEqual PRIVATE ${CMAKE_CURRENT_LIST_DIR}/AssignMistakeByEqual.cpp)

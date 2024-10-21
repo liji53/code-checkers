@@ -28,6 +28,13 @@ set_if_not_defined(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_I
 set_if_not_defined(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
 set_if_not_defined(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
 
+# 
+IF (CMAKE_SYSTEM_NAME MATCHES "Windows") 
+set(CLANG_TIDY_INCLUDE_DIRS "F:/open_projects/llvm-project/clang-tools-extra")
+set(LLVM_DIR "F:/open_projects/llvm-project/build/lib/cmake/llvm")
+set(Clang_DIR "F:/open_projects/llvm-project/build/lib/cmake/clang")
+endif()
+
 enable_testing()
 find_package(LLVM REQUIRED CONFIG)
 find_package(Clang REQUIRED CONFIG)
