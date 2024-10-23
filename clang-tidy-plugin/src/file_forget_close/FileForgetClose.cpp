@@ -6,8 +6,8 @@
 #include "clang/StaticAnalyzer/Frontend/CheckerRegistry.h"
 #include <utility>
 
-constexpr const char* CHECKER_PLUGIN_NAME = "demo.streamchecker";
-constexpr const char* CHECKER_PLUGIN_DOCS_URI = "demo.streamchecker.nonexistent";
+constexpr const char* CHECKER_PLUGIN_NAME = "hs.fileforgetclosecheck";
+constexpr const char* CHECKER_PLUGIN_DOCS_URI = "hs.fileforgetclosecheck.nonexistent";
 
 using namespace clang;
 using namespace ento;
@@ -279,6 +279,6 @@ extern "C" __attribute__((visibility("default"))) const char clang_analyzerAPIVe
 
 extern "C" __attribute__((visibility("default"))) void clang_registerCheckers(CheckerRegistry & registry)
 {
-    registry.addChecker<SimpleStreamChecker>(CHECKER_PLUGIN_NAME, "Invokes the SimplesStreamChecker of the LLVM demo", CHECKER_PLUGIN_DOCS_URI);
+    registry.addChecker<SimpleStreamChecker>(CHECKER_PLUGIN_NAME, "Invokes the fileCloseChecker of the LLVM demo", CHECKER_PLUGIN_DOCS_URI);
 }
 

@@ -1,7 +1,7 @@
 # clang-tidy plugins
 
-参考资料：https://clang.llvm.org/docs/LibASTMatchersReference.html
-
+参考资料：<br>
+https://clang.llvm.org/docs/LibASTMatchersReference.html <br>
 https://github.com/coveooss/clang-tidy-plugin-examples.git
 
 ## 部署
@@ -21,7 +21,7 @@ cmake --build build
 
 ## 使用
 
-#### 查看是否支持某个检查
+#### 基于clang-tidy查看是否支持某个检查
 ```shell
 clang-tidy-16 \
 		--checks='*' \
@@ -35,13 +35,22 @@ cmake -B buildTestedCpp -S tested_cpp \
 	-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 cmake --build buildTestedCpp
 ```
-#### 指定检查器进行检查
+#### 基于clang-tidy指定检查器进行检查
 ```shell
 clang-tidy-16 \
 	--checks='coveo-awesomeprefixcheck' \
 	--load build/lib/libAwesomePrefixCheck.so \
 	-p buildTestedCpp/compile_commands.json \
 	tested_cpp/src/code.cpp
+```
+#### 基于clang static analyzer指定检查器进行检查
+```shell
+clang-16 \
+    -fsyntax-only \
+	-fplugin=build/lib/libFileForgetClose.so 
+	-Xclang -analyze 
+	-Xclang -analyzer-checker=hs.fileforgetclosechecker  
+	src/file_forget_close/TestFileForgetClose.cpp
 ```
 
 ## 开发

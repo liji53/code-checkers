@@ -17,22 +17,32 @@ from backend.config import STATIC_DIR, FILES_DIR
 checkers_map = {
     "awesomeprefixcheck": {
         "name": "函数命名必须有awesome",
+        "type": "TIDY",
         "lib": "clang-tidy-plugin/build/lib/libAwesomePrefixCheck.so",
         "category": "coveo"
     },
     "snprintfargcountcheck": {
         "name": "snprintf函数占位符与参数个数不一致",
+        "type": "TIDY",
         "lib": "clang-tidy-plugin/build/lib/libSnprintfArgCount.so",
         "category": "hs"
     },
     "assignmistakebyequalcheck": {
         "name": "赋值语句误用==",
+        "type": "TIDY",
         "lib": "clang-tidy-plugin/build/lib/libAssignMistakeByEqual.so",
         "category": "hs"
     },
     "conditionmistakebyassigncheck": {
         "name": "条件判断语句中误用赋值",
+        "type": "TIDY",
         "lib": "clang-tidy-plugin/build/lib/libConditionMistakeByAssign.so",
+        "category": "hs"
+    },
+    "fileforgetclosecheck": {
+        "name": "文件句柄close异常",
+        "type": "CSA",
+        "lib": "clang-tidy-plugin/build/lib/libFileForgetClose.so",
         "category": "hs"
     }
 }
@@ -102,11 +112,14 @@ async def execute_task(req):
     checker_name = req["checkerName"]
     category = checkers_map[checker_name]["category"]
     lib_path = checkers_map[checker_name]["lib"]
+    checker_type = checkers_map[checker_name]["type"]
     target_path = os.path.join(FILES_DIR, req["uuid"])
-    if lib_path:
+    if checker_type == "CSA":
+        command = f'clang-16 -fsyntax-only -fplugin={lib_path} -Xclang -analyze -Xclang -analyzer-checker={category}.{checker_name} {target_path}/*.cpp'
+    elif checker_type == "TIDY":
         command = f'clang-tidy-16 --checks="{category}-{checker_name}" --load {lib_path} {target_path}/*.cpp'
     else:
-        command = f'clang-tidy-16 --checks="{category}-{checker_name}" {target_path}/*.cpp'
+        return f"检查失败，【{checker_name}】不支持该类型【{checker_type}】的检查"
 
     async def run_subprocess() -> str:
         """异步执行shell命令"""
@@ -118,7 +131,7 @@ async def execute_task(req):
 
     # 特殊处理：没有编译命令时，删除前6行
     res = await run_subprocess()
-    if res.startswith("Error while trying to load a compilation database:"):
+    if checker_type == 'TIDY' and res.startswith("Error while trying to load a compilation database:"):
         lines = res.split('\n')
         res = '\n'.join(lines[6:])
     return res
